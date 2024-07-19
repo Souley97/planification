@@ -1,95 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Planification des Achats</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 h-screen flex items-center justify-center">
-    <div class="h-screen  from-blue-600 to-cyan-300 flex justify-center items-center w-full">
+    <div class="h-screen from-blue-600 to-cyan-300 flex justify-center items-center w-full">
         <div class="container max-w-md">
-            <!-- Signup Form -->
-            <div id="signup" style="display:none;">
-                <form id="signupForm" method="post" action=""  class="bg-white p-6 rounded-lg shadow-md">
-                    <h1 class="text-2xl font-semibold text-center mb-4">Inscription</h1>
-                    <div id="messageBox" class="hidden"></div>
-                    <label for="firstName">Prénom:</label>
-                    <input type="text" id="firstName" name="firstName" required class="border p-2 w-full mb-2">
+        <!-- Authentification -->
+        <div id="authSection">
+            <div id="signIn" class="bg-white p-6 rounded-lg shadow-md hidden">
+                <form id="signInForm" class="space-y-4">
+                    <h1 class="text-2xl font-semibold text-center mb-4">Connexion</h1>
+                    <div id="messageBoxSignIn" class="hidden"></div>
+                    <label for="signInEmail">Email:</label>
+                    <input type="email" id="signInEmail" required class="border p-2 w-full mb-2">
 
-                    <label for="lastName">Nom:</label>
-                    <input type="text" id="lastName" name="lastName" required class="border p-2 w-full mb-2">
+                    <label for="signInPassword">Mot de passe:</label>
+                    <input type="password" id="signInPassword" required class="border p-2 w-full mb-4">
 
-                    <label for="phone">Téléphone:</label>
-                    <input type="tel" id="phone" name="phone" required class="border p-2 w-full mb-2">
-
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required class="border p-2 w-full mb-2">
-
-                    <label for="password">Mot de passe:</label>
-                    <input type="password" id="password" name="password" required class="border p-2 w-full mb-4">
-
-                    <button d="submitSignUp"  class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">S'inscrire</button>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Connexion</button>
                 </form>
                 <div class="text-center mt-4">
-                    <p>Vous avez de compte ? <a href="#" id="signInButton" class="text-blue-500">Connectez-vous maintenant</a></p>
+                    <p>Vous n'avez pas de compte ? <a href="#" id="signUpButton" class="text-blue-500">Inscrivez-vous maintenant</a></p>
                 </div>
             </div>
 
-            <!-- Sign In Form -->
-                <div id="signIn">
-                    <form id="signInForm" method="post" action=""  class="bg-white p-6 rounded-lg shadow-md">
-                        <h1 class="text-2xl font-semibold text-center mb-4">Connexion</h1>
-                        <div id="messageBoxSignIn" class="hidden"></div>
-                        <label for="signInEmail">Email:</label>
-                        <input type="email" id="signInEmail" name="signInEmail" required class="border p-2 w-full mb-2">
+            <!-- Inscription -->
+            <div id="signup" class="bg-white p-6 rounded-lg shadow-md">
+                <form id="signupForm" class="space-y-4">
+                    <h1 class="text-2xl font-semibold text-center mb-4">Inscription</h1>
+                    <div id="messageBoxSignUp" class="hidden"></div>
+                    <label for="firstName">Prénom:</label>
+                    <input type="text" id="firstName" required class="border p-2 w-full mb-2">
 
-                        <label for="signInPassword">Mot de passe:</label>
-                        <input type="password" id="signInPassword" name="signInPassword" required class="border p-2 w-full mb-4">
+                    <label for="lastName">Nom:</label>
+                    <input type="text" id="lastName" required class="border p-2 w-full mb-2">
 
-                        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Connexion</button>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p>Vous n'avez pas de compte ? <a href="#" id="signUpButton" class="text-blue-500">Inscrivez-vous maintenant</a></p>
-                    </div>
+                    <label for="phone">Téléphone:</label>
+                    <input type="tel" id="phone" required class="border p-2 w-full mb-2">
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required class="border p-2 w-full mb-2">
+
+                    <label for="password">Mot de passe:</label>
+                    <input type="password" id="password" required class="border p-2 w-full mb-4">
+
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">S'inscrire</button>
+                </form>
+                <div class="text-center mt-4">
+                    <p>Vous avez un compte ? <a href="#" id="signInButton" class="text-blue-500">Connectez-vous maintenant</a></p>
                 </div>
+            </div>
         </div>
+
+        <!-- Main Section -->
+        <div id="mainSection" >
+            <!-- Sélection de la Date -->
+            <div id="dateSelection" class="mb-6">
+                <h1 class="text-3xl mb-4">Planification des Achats</h1>
+                <h2 class="text-xl mb-2">Sélectionner une Date</h2>
+                <input type="date" id="shoppingDate" class="block mb-2 p-2 border">
+                <!-- <button id="addDateButton" class="bg-blue-500 text-white p-2">Ajouter une Date</button> -->
+            </div>
+
+            <!-- Détails des Produits pour la Date Sélectionnée -->
+            
+
+            <!-- Formulaire pour Ajouter un Produit -->
+           <div class="container max-w-md bg-white p-6 rounded-lg shadow-md mb-6" id="shoppingForm addProductForm">
+            <div id="messageBox" class="hidden p-2 mt-4"></div>
+
+            <form id="productForm" class="space-y-4">
+                <!-- <h2 class="text-2xl font-semibold text-center mb-4">Ajouter un produit</h2> -->
+            
+                <label for="productName" class="block mb-2">Nom du produit:</label>
+                <input type="text" id="productName" required class="border p-2 w-full mb-4">
+
+                <label for="productPrice" class="block mb-2">Prix du produit:</label>
+                <input type="number" id="productPrice" required class="border p-2 w-full mb-4">
+
+                <label for="productQuantity" class="block mb-2">Quantité:</label>
+                <input type="number" id="productQuantity" required class="border p-2 w-full mb-4">
+                <input type="hidden" id="status">
+
+                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition">Ajouter</button>
+            </form>
+        </div>
+        <div id="dateDetails" >
+            <h2 class="text-2xl mb-4">Détails des Produits pour la Date Sélectionnée</h2>
+            <table id="productsTable" class="table-auto w-full border-collapse border border-gray-200">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Produit</th>
+                        <th class="border p-2">Prix</th>
+                        <th class="border p-2">Quantité</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="mt-4">
+                <!-- <button id="addProductButton" class="bg-green-500 text-white p-2">Ajouter un Produit</button> -->
+            </div>
+        </div>
+            <!-- Consultation des Dates -->
+            <!-- <div id="consultationSection" class="mb-6">
+                <h2 class="text-2xl mb-4">Consultation des Dates</h2>
+                <div id="pastDates" class="mb-4">
+                    <h3 class="text-xl mb-2">Dates Passées</h3>
+                    <ul id="pastDatesList" class="list-disc pl-5"></ul>
+                </div>
+                <div id="futureDates">
+                    <h3 class="text-xl mb-2">Dates à Venir</h3>
+                    <ul id="futureDatesList" class="list-disc pl-5"></ul>
+                </div>
+            </div> -->
+
+            <!-- Bouton de Déconnexion -->
+            <button id="signOutButton" class="bg-red-500 text-white p-2 mt-4">Se déconnecter</button>
+        </div>
+
+        <!-- Message Box -->
     </div>
-     <!-- Shopping Form and Products Table -->
-     <form id="shoppingForm" style="display:none;">
-        <label for="shoppingDate">Sélectionnez une date:</label>
-        <input type="date" id="shoppingDate" name="shoppingDate" required>
+</div>
 
-        <label for="productName">Nom du produit:</label>
-        <input type="text" id="productName" name="productName" required>
-
-        <label for="productPrice">Prix du produit:</label>
-        <input type="number" id="productPrice" name="productPrice" required>
-
-        <label for="productQuantity">Quantité:</label>
-        <input type="number" id="productQuantity" name="productQuantity" required>
-
-        <button type="submit">Ajouter</button>
-    </form>
-
-    <div id="messageBox"></div>
-    <table id="productsTable" style="display:none;">
-        <thead>
-            <tr>
-                <th>Nom du produit</th>
-                <th>Prix</th>
-                <th>Quantité</th>
-                <th>Marquer comme acheté</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Les produits seront ajoutés ici dynamiquement -->
-        </tbody>
-    </table>
-    
+    <script type="module" src="public/js//config.js"></script>
     <script type="module" src="public/js/auth.js"></script>
-    <script src="public/js/script.js"></script>
-
-</body>
+    <script type="module"   src="public/js/produit.js"></script>
+    <script  src="public/js/script.js"></script></body>
 </html>
