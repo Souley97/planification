@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planification des Achats</title>
+    <link rel="stylesheet" href="public/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 h-screen flex items-center justify-center">
@@ -58,37 +59,33 @@
 
         <!-- Main Section -->
         <div id="mainSection" >
-            <!-- Sélection de la Date -->
             <div id="dateSelection" class="mb-6">
                 <h1 class="text-3xl mb-4">Planification des Achats</h1>
                 <h2 class="text-xl mb-2">Sélectionner une Date</h2>
                 <input type="date" id="shoppingDate" class="block mb-2 p-2 border">
-                <!-- <button id="addDateButton" class="bg-blue-500 text-white p-2">Ajouter une Date</button> -->
+                <button id="addProductButton" class="bg-blue-500 text-white p-2 mt-2">Ajouter un produit</button>
             </div>
-
-            <!-- Détails des Produits pour la Date Sélectionnée -->
             
-
-            <!-- Formulaire pour Ajouter un Produit -->
-           <div class="container max-w-md bg-white p-6 rounded-lg shadow-md mb-6" id="shoppingForm addProductForm">
-            <div id="messageBox" class="hidden p-2 mt-4"></div>
-
-            <form id="productForm" class="space-y-4">
-                <!-- <h2 class="text-2xl font-semibold text-center mb-4">Ajouter un produit</h2> -->
+            <!-- Fenêtre modale -->
+            <div id="addProductModal" class="modal hidden fixed top-0 left-0 w-full h-full flex items-center justify-center">
+                <div class="modal-content bg-white p-6 rounded-lg shadow-md relative">
+                    <span class="close-modal absolute top-2 right-2 text-2xl cursor-pointer">&times;</span>
+                    <div id="messageBox" class="hidden p-2 mt-4"></div>
+                    <form id="productForm" class="space-y-4">
+                        <label for="productName" class="block mb-2">Nom du produit:</label>
+                        <input type="text" id="productName" required class="border p-2 w-full mb-4">
             
-                <label for="productName" class="block mb-2">Nom du produit:</label>
-                <input type="text" id="productName" required class="border p-2 w-full mb-4">
-
-                <label for="productPrice" class="block mb-2">Prix du produit:</label>
-                <input type="number" id="productPrice" required class="border p-2 w-full mb-4">
-
-                <label for="productQuantity" class="block mb-2">Quantité:</label>
-                <input type="number" id="productQuantity" required class="border p-2 w-full mb-4">
-                <input type="hidden" id="status">
-
-                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition">Ajouter</button>
-            </form>
-        </div>
+                        <label for="productPrice" class="block mb-2">Prix du produit:</label>
+                        <input type="number" id="productPrice" required class="border p-2 w-full mb-4">
+            
+                        <label for="productQuantity" class="block mb-2">Quantité:</label>
+                        <input type="number" id="productQuantity" required class="border p-2 w-full mb-4">
+                        <input type="hidden" id="status">
+            
+                        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Ajouter</button>
+                    </form>
+                </div>
+            </div>
         <div id="dateDetails" >
             <h2 class="text-2xl mb-4">Détails des Produits pour la Date Sélectionnée</h2>
             <table id="productsTable" class="table-auto w-full border-collapse border border-gray-200">
@@ -130,5 +127,10 @@
     <script type="module" src="public/js//config.js"></script>
     <script type="module" src="public/js/auth.js"></script>
     <script type="module"   src="public/js/produit.js"></script>
-    <script  src="public/js/script.js"></script></body>
+    <script  src="public/js/script.js"></script>
+<!-- Date -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+</body>
 </html>

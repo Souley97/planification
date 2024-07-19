@@ -18,6 +18,31 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
+
+
+
+    // Ouverture et fermeture de la fenêtre modale
+    const modal = document.getElementById('addProductModal');
+    const addProductButton = document.getElementById('addProductButton');
+    const closeModal = document.querySelector('.close-modal');
+
+    addProductButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    });
+
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    });
+
 // Date change event to load products for selected date
 document.getElementById('shoppingDate').addEventListener('change', loadUserProducts);
 
@@ -90,6 +115,9 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     addProductToTable(productName, productPrice, productQuantity, shoppingDate, boughtStatus);
     displayMessage('success', 'Produit ajouté avec succès !');
     document.getElementById('productForm').reset();
+          // Fermer la fenêtre modale après soumission
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
 });
 
 // Mark product as bought
