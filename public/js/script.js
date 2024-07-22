@@ -1,44 +1,26 @@
-const signUpButton = document.getElementById('signUpButton');
-const signInButton = document.getElementById('signInButton');
-const signInForm = document.getElementById('signIn');
-const signUpForm = document.getElementById('signup');
-
-signUpButton.addEventListener('click', function(){
-    signInForm.style.display = "none";
-    signUpForm.style.display = "block";
+// Gestion des sections d'authentification
+document.getElementById('signUpButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('signIn').classList.add('hidden');
+    document.getElementById('signup').classList.remove('hidden');
 });
 
-signInButton.addEventListener('click', function(){
-    signInForm.style.display = "block";
-    signUpForm.style.display = "none";
+document.getElementById('signInButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('signup').classList.add('hidden');
+    document.getElementById('signIn').classList.remove('hidden');
 });
 
+// Gestion de la fenêtre modale pour ajouter un produit
+const addProductButton = document.getElementById('addProductButton');
+const addProductModal = document.getElementById('addProductModal');
+const closeModal = document.querySelector('.close-modal');
 
-flatpickr("#shoppingDate", {
-    dateFormat: "Y-m-d", // Format de la date
-    minDate: "today",   // Date minimale (aujourd'hui)
-    maxDate: new Date().fp_incr(30), // Date maximale (30 jours à partir d'aujourd'hui)
+addProductButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    addProductModal.classList.remove('hidden');
 });
 
-
-    // Ouverture et fermeture de la fenêtre modale
-    const modal = document.getElementById('addProductModal');
-    const addProductButton = document.getElementById('addProductButton');
-    const closeModal = document.querySelector('.close-modal');
-
-    addProductButton.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-    });
-
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        }
-    });
+closeModal.addEventListener('click', () => {
+    addProductModal.classList.add('hidden');
+});
