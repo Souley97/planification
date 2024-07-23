@@ -211,31 +211,26 @@ async function loadScheduledDates() {
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const shoppingDate = new Date(data.shoppingDate);
-        const shoppingDateString = shoppingDate.toLocaleDateString();
+        const shoppingDate = new Date(data.shoppingDate).toLocaleDateString();
 
-        if (!dateMap.has(shoppingDateString)) {
-            dateMap.set(shoppingDateString, { totalPrice: 0, products: [], allPurchased: true });
+        if (!dateMap.has(shoppingDate)) {
+            dateMap.set(shoppingDate, { totalPrice: 0, products: [], allPurchased: true });
         }
 
         const totalPriceForProduct = data.productPrice * data.productQuantity;
-        dateMap.get(shoppingDateString).totalPrice += totalPriceForProduct;
-        dateMap.get(shoppingDateString).products.push({ ...data, id: doc.id });
+        dateMap.get(shoppingDate).totalPrice += totalPriceForProduct;
+        dateMap.get(shoppingDate).products.push({ ...data, id: doc.id });
 
         if (!data.purchased) {
-            dateMap.get(shoppingDateString).allPurchased = false;
+            dateMap.get(shoppingDate).allPurchased = false;
         }
     });
 
-    const now = new Date();
-
     dateMap.forEach((value, date) => {
-        const dateObj = new Date(date);
-        const isPast = dateObj < now;
-        const bgColorClass = isPast ? 'bg-red-100' : 'bg-blue-100';
-        const textColorClass = isPast ? 'text-red-500' : 'text-blue-500';
-
         const dateItem = document.createElement('div');
+        const bgColorClass = value.allPurchased ? 'bg-green-100' : 'bg-gray-100';
+        const textColorClass = value.allPurchased ? 'text-green-500' : 'text-gray-500';
+
         dateItem.className = `mb-4 p-4 ${bgColorClass} rounded-lg shadow-sm cursor-pointer`;
         dateItem.dataset.date = date;
 
@@ -254,7 +249,7 @@ async function loadScheduledDates() {
        
     async function showDateDetails(date, products) {
         const dateDetailsCard = document.createElement('div');
-        dateDetailsCard.className = ' inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+        dateDetailsCard.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
         
         // Calculate initial totals
         let totalPrice = products.reduce((total, product) => total + product.productPrice * product.productQuantity, 0);

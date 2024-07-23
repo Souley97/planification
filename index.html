@@ -96,7 +96,7 @@
                             <input type="number" id="productPrice" required class="border p-2 w-full mb-4">
                             <label for="productQuantity" class="block mb-2">Quantité:</label>
                             <input type="number" id="productQuantity" required class="border p-2 w-full mb-4">
-                            <input type="hidden" id="status">
+                            <input type="hidden"  name="status" id="status" value="false">
                             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
                                 <i class="fas fa-save"></i> Ajouter
                             </button>
@@ -104,7 +104,8 @@
                     </div>
                 </div>
                 <!-- Modal for Editing Product -->
-               
+             <div id="upcomingDatesList"></div>
+  
                <!-- Fenêtre modale de modification de produit -->
 <div id="productModal" class="modal hidden fixed top-0 left-0 w-full h-full flex items-center justify-center">
     <div class="bg-white p-4 rounded-lg relative">
@@ -149,6 +150,8 @@
                     <h2 class="text-lg font-bold">Dates à Venir</h2>
                     <div id="scheduledDatesList" class="mt-4"></div>
                     <div id="totalPrice" class="mt-4 font-bold"></div>
+                    <div id="upcomingDatesList"></div>
+
                 </div>
 
                 
@@ -182,6 +185,7 @@
     <script type="module" src="public/js/auth.js"></script>
     <script type="module" src="public/js/produit.js"></script>
     <script type="module" src="public/js/update.js"></script>
+    <script type="module" src="public/js/dateVenir.js"></script>
     <script src="public/js/script.js"></script>
     <script>
         document.getElementById('menuToggle').addEventListener('click', function () {
