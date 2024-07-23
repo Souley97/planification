@@ -149,6 +149,8 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     addProductToTable(`${user.uid}-${shoppingDate}-${productName}`, productName, productPrice, productQuantity, shoppingDate, boughtStatus);
     displayMessage('success', 'Produit ajouté avec succès !');
     document.getElementById('productForm').reset();
+    loadUserProducts(); // Recharge les produits après suppression
+
     // Fermer la fenêtre modale après soumission
     modal.classList.add('hidden');
     modal.style.display = 'none';

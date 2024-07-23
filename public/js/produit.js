@@ -25,22 +25,35 @@ const modal = document.getElementById('addProductModal');
 const addProductButton = document.getElementById('addProductButton');
 const closeModal = document.querySelector('.close-modal');
 
-addProductButton.addEventListener('click', () => {
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-});
-
-closeModal.addEventListener('click', () => {
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-});
 
 window.addEventListener('click', (event) => {
     if (event.target === modal) {
         modal.classList.add('hidden');
         modal.style.display = 'none';
     }
+    addProductButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('shoppingDate').value = new Date().toISOString().split('T')[0];
+    });
+    
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    });
 });
+
+
+
+
+
 
 // Set the default date to today's date
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,29 +95,54 @@ async function loadUserProducts() {
 
     totalPriceElem.innerHTML = `Somme: ${sommeTotal}F CFA`;
 }
+    
 
 // Add product to table
 function addProductToTable(id, name, price, quantity, date, bought, total) {
     const tbody = document.querySelector('#productsTable tbody');
     const row = document.createElement('tr');
+    row.className="mb-4 p-20 bg-gray-100 rounded-lg shadow-sm cursor-pointer ";
+    
 
     row.innerHTML = `
-        <tr class="max-w-md mx-auto mt-6 bg-white rounded-lg overflow-hidden md:max-w-lg border border-gray-200">
-            <td class="flex items-center p-4 bg-white">
-                <img class="w-16 h-16 object-cover rounded" src="https://dummyimage.com/100x100/F3F4F7/000000.jpg" alt="Product Image">
-                <div class="ml-3 flex-1">
-                    <h3 class="text-gray-900 font-semibold">${name}</h3>
-                    <p class="text-gray-700 mt-1">Prix: ${price}</p>
-                    <p class="text-gray-700 mt-1">Quantité: ${quantity}</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-green-600">Total : ${total}</span>
-                    <input type="checkbox" class="text-green-600 bg-green-200 rounded" ${bought ? 'checked' : ''} disabled>
-                </div>
-            </td>
-        </tr>
+        <td class="flex items-center my-4 rounded-lg shadow-sm cursor-pointer   p-4 bg-white">
+            <img class="w-16 h-16 object-cover rounded" src="https://dummyimage.com/100x100/F3F4F7/000000.jpg" alt="Product Image">
+            <div class="ml-3 flex-1">
+                <h3 class="text-gray-900 font-semibold">${name}</h3>
+                <p class="text-gray-700 mt-1">Prix: ${price}</p>
+                <p class="text-gray-700 mt-1">Quantité: ${quantity}</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-green-600">Total : ${total}</span>
+                <button class="edit-button" data-id="${id}">
+                    <i class="fas fa-edit text-blue-500"></i>
+                </button>
+                <button class="delete-button" data-id="${id}">
+                    <i class="fas fa-trash text-red-500"></i>
+                </button>
+            </div>
+        </td>
     `;
+
     tbody.appendChild(row);
+
+    // Ajout des événements pour les boutons et les cases à cocher
+    row.querySelector('.purchase-checkbox').addEventListener('change', async (event) => {
+        const productId = event.target.dataset.id;
+        const purchased = event.target.checked;
+        await updatePurchaseStatus(productId, purchased);
+        loadScheduledDates(); // Rafraîchir les dates planifiées
+    });
+
+    row.querySelector('.edit-button').addEventListener('click', () => {
+        // Code pour éditer le produit
+        editProduct(id);
+    });
+
+    row.querySelector('.delete-button').addEventListener('click', () => {
+        // Code pour supprimer le produit
+        deleteProduct(id);
+    });
 }
 
 // Add product form submission
@@ -154,152 +192,11 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     modal.style.display = 'none';
 });
 
-// Suppression d'un produit
-document.addEventListener('click', async (e) => {
-    if (e.target && e.target.classList.contains('delete-button')) {
-        const productId = e.target.getAttribute('data-id');
-        const user = auth.currentUser;
-        const confirmed = confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');
-
-        if (confirmed && user) {
-            await deleteDoc(doc(db, 'products', productId));
-            loadUserProducts(); // Recharge les produits après suppression
-        }
-    }
-});
-
-// Edit and delete product functionality
-document.addEventListener('click', async (e) => {
-    if (e.target && e.target.classList.contains('edit-button')) {
-        const id = e.target.getAttribute('data-id');
-        const docRef = doc(db, 'products', id);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            const product = {
-                id: id,
-                name: data.productName,
-                price: data.productPrice,
-                quantity: data.productQuantity,
-                status: data.bought ? 'acheter' : 'non'
-            };
-            openProductModal('edit', product);
-        }
-    }
-
-    if (e.target && e.target.classList.contains('delete-button')) {
-        const id = e.target.getAttribute('data-id');
-        await deleteProduct(id);
-    }
-
-    if (e.target && e.target.classList.contains('mark-as-bought')) {
-        await markAsBought(e.target);
-    }
-});
-
-function openProductModal(mode, product = null) {
-    const productModal = document.getElementById('productModal');
-    const productIdInput = document.getElementById('productId');
-    const productNameInput = document.getElementById('productNameEdit');
-    const productPriceInput = document.getElementById('productPriceEdit');
-    const productQuantityInput = document.getElementById('productQuantityEdit');
-    const productStatusInput = document.getElementById('statusEdit');
-
-    if (mode === 'edit') {
-        productIdInput.value = product.id;
-        productNameInput.value = product.name;
-        productPriceInput.value = product.price;
-        productQuantityInput.value = product.quantity;
-        productStatusInput.value = product.status;
-        document.getElementById('productModalTitle').textContent = 'Modifier le produit';
-    } else {
-        productIdInput.value = '';
-        productNameInput.value = '';
-        productPriceInput.value = '';
-        productQuantityInput.value = '';
-        productStatusInput.value = 'non';
-        document.getElementById('productModalTitle').textContent = 'Ajouter un produit';
-        }
-        productModal.classList.remove('hidden');
-productModal.style.display = 'flex';
-}
-
-async function markAsBought(checkbox) {
-const id = checkbox.getAttribute('data-id');
-const bought = checkbox.checked;
-const docRef = doc(db, 'products', id);
-
-await updateDoc(docRef, {
-    bought: bought
-});
-
-loadUserProducts(); // Reload products after marking as bought
-}
-
-function validateFields(fields) {
-for (const [key, value] of Object.entries(fields)) {
-if (!value) {
-return `${key} est requis.`;
-}
-}
-return null;
-}
-
-function displayMessage(type, message) {
-const messageBox = document.getElementById('messageBox');
-messageBox.textContent = message;
-messageBox.className = type === 'success' ? 'bg-green-200 text-green-800 p-2 mt-4' : 'bg-red-200 text-red-800 p-2 mt-4';
-messageBox.classList.remove('hidden');
-setTimeout(() => {
-    messageBox.classList.add('hidden');
-}, 3000);
-}
 
 
-// Load past shopping dates
-async function loadPastShoppingDates() {
-    const user = auth.currentUser;
-    if (!user) return;
 
-    const q = query(collection(db, 'products'), where('userId', '==', user.uid));
-    const querySnapshot = await getDocs(q);
-    const pastDates = {};
-
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (!pastDates[data.shoppingDate]) {
-            pastDates[data.shoppingDate] = { total: 0, count: 0 };
-        }
-        pastDates[data.shoppingDate].total += data.productQuantity * data.productPrice;
-        pastDates[data.shoppingDate].count++;
-    });
-
-    const pastDatesList = document.getElementById('pastDatesList');
-    pastDatesList.innerHTML = '';
-
-    Object.keys(pastDates).sort((a, b) => new Date(a) - new Date(b)).forEach(date => {
-        const daysPassed = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
-        const listItem = document.createElement('div');
-        listItem.className = 'flex justify-between items-center p-4 bg-gray-100 rounded-lg';
-        listItem.innerHTML = `
-            <div>
-                <p class="font-bold">${new Date(date).toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                })}</p>
-                <p class="text-gray-600">${pastDates[date].total} F</p>
-            </div>
-            <div>
-                <p class="text-gray-600">${daysPassed} jours</p>
-            </div>
-        `;
-        pastDatesList.appendChild(listItem);
-    });
-}
 // Fetch scheduled dates from Firestore
+   
 async function loadScheduledDates() {
     const user = auth.currentUser;
     if (!user) return;
@@ -314,30 +211,37 @@ async function loadScheduledDates() {
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const shoppingDate = new Date(data.shoppingDate).toLocaleDateString();
+        const shoppingDate = new Date(data.shoppingDate);
+        const shoppingDateString = shoppingDate.toLocaleDateString();
 
-        if (!dateMap.has(shoppingDate)) {
-            dateMap.set(shoppingDate, { totalPrice: 0, products: [], allPurchased: true });
+        if (!dateMap.has(shoppingDateString)) {
+            dateMap.set(shoppingDateString, { totalPrice: 0, products: [], allPurchased: true });
         }
 
-        dateMap.get(shoppingDate).totalPrice += data.productPrice;
-        dateMap.get(shoppingDate).products.push({ ...data, id: doc.id });
+        const totalPriceForProduct = data.productPrice * data.productQuantity;
+        dateMap.get(shoppingDateString).totalPrice += totalPriceForProduct;
+        dateMap.get(shoppingDateString).products.push({ ...data, id: doc.id });
 
         if (!data.purchased) {
-            dateMap.get(shoppingDate).allPurchased = false;
+            dateMap.get(shoppingDateString).allPurchased = false;
         }
     });
 
-    dateMap.forEach((value, date) => {
-        const dateItem = document.createElement('div');
-        dateItem.className = 'mb-4 p-4 bg-gray-100 rounded-lg shadow-sm cursor-pointer';
-        dateItem.dataset.date = date;
+    const now = new Date();
 
-        const totalPriceClass = value.allPurchased ? 'bg-green' : 'bg-gray';
+    dateMap.forEach((value, date) => {
+        const dateObj = new Date(date);
+        const isPast = dateObj < now;
+        const bgColorClass = isPast ? 'bg-red-100' : 'bg-blue-100';
+        const textColorClass = isPast ? 'text-red-500' : 'text-blue-500';
+
+        const dateItem = document.createElement('div');
+        dateItem.className = `mb-4 p-4 ${bgColorClass} rounded-lg shadow-sm cursor-pointer`;
+        dateItem.dataset.date = date;
 
         dateItem.innerHTML = `
             <h3 class="text-gray-900 font-semibold">Date: ${date}</h3>
-            <p>Total: <span class="${totalPriceClass}">${value.totalPrice}F</span></p>
+            <p>Total: <span class="${textColorClass}">${value.totalPrice}F</span></p>
         `;
 
         dateItem.addEventListener('click', () => showDateDetails(date, value.products));
@@ -345,49 +249,111 @@ async function loadScheduledDates() {
     });
 }
 
-function showDateDetails(date, products) {
-    const dateDetailsCard = document.createElement('div');
-    dateDetailsCard.className = 'fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50';
-
-    dateDetailsCard.innerHTML = `
-        <div class="bg-white p-6 rounded-lg shadow-md relative w-1/2">
-            <button class="absolute top-2 right-2 bg-red-500 text-white py-1 px-3 rounded-full hover:bg-red-600 transition" id="closeDateDetailsCard">Fermer</button>
-            <h2 class="text-lg font-bold">Détails pour ${date}</h2>
-            <div id="dateDetailsList" class="mt-4">
-                ${products.map(product => `
-                    <div class="mb-4 p-4 bg-gray-100 rounded-lg shadow-sm">
-                        <p>Nom du produit: ${product.productName}</p>
-                        <p>Prix: ${product.productPrice}F</p>
-                        <p>Quantité: ${product.productQuantity}</p>
-                        <label>
-                            <input type="checkbox" ${product.purchased ? 'checked' : ''} data-id="${product.id}" class="purchase-checkbox"> Acheter
-                        </label>
-                    </div>
-                `).join('')}
+    
+    // Example function to show details of a particular date
+       
+    async function showDateDetails(date, products) {
+        const dateDetailsCard = document.createElement('div');
+        dateDetailsCard.className = ' inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+        
+        // Calculate initial totals
+        let totalPrice = products.reduce((total, product) => total + product.productPrice * product.productQuantity, 0);
+        let purchasedTotalPrice = products.reduce((total, product) => product.purchased ? total + product.productPrice * product.productQuantity : total, 0);
+    
+        // Determine card background color based on purchase status
+        const isAllPurchased = products.every(product => product.purchased);
+        const cardBgColor = isAllPurchased ? 'bg-green-100' : 'bg-white';
+        const totalPriceColor = isAllPurchased ? 'text-green-500' : 'text-gray-500';
+    
+        dateDetailsCard.innerHTML = `
+            <div class="${cardBgColor} p-6 rounded-lg shadow-md relative w-full max-w-4xl mx-auto">
+                <div id="totalPrice" class="mt-4 font-bold ${totalPriceColor}">
+                    Total: ${totalPrice}F
+                </div>
+                <div id="purchasedTotalPrice" class="mt-4 font-bold ${totalPriceColor}">
+                    Total des produits achetés: ${purchasedTotalPrice}F
+                </div>
+                
+                <button class="absolute top-2 right-2 bg-red-500 text-white py-1 px-3 rounded-full hover:bg-red-600 transition" id="closeDateDetailsCard">
+                    Fermer
+                </button>
+                <h2 class="text-lg font-bold mt-4">Détails pour ${date}</h2>
+                <div id="dateDetailsList" class="mt-4">
+                 ${products.map(product => {
+    // Determine the background color based on the purchased status
+    const cardBgColor = product.purchased ? 'bg-green-300' : 'bg-gray-50';
+    
+    return `
+        <div class="flex items-center p-4 ${cardBgColor} rounded-lg shadow-sm mb-4">
+            <img class="w-16 h-16 object-cover rounded" src="https://dummyimage.com/100x100/F3F4F7/000000.jpg" alt="Product Image">
+            <div class="ml-3 flex-1">
+                <h3 class="text-gray-900 font-semibold">${product.productName}</h3>
+                <p class="text-gray-700 mt-1">Prix: ${product.productPrice}F</p>
+                <p class="text-gray-700 mt-1">Quantité: ${product.productQuantity}</p>
             </div>
-            <div id="totalPrice" class="mt-4 font-bold ${products.every(product => product.purchased) ? 'text-green-500' : 'text-gray-500'}">Total: ${products.reduce((sum, product) => sum + product.productPrice, 0)}F</div>
+            <div class="flex items-center space-x-4">
+                <span class="text-green-600 font-bold">Total: ${product.productQuantity * product.productPrice}F</span>
+                <input type="checkbox" ${product.purchased ? 'checked' : ''} data-id="${product.id}" class="purchase-checkbox">
+                <button class="edit-button" data-id="${product.id}">
+                    <i class="fas fa-edit text-blue-500"></i>
+                </button>
+                <button class="delete-button" data-id="${product.id}">
+                    <i class="fas fa-trash text-red-500"></i>
+                </button>
+            </div>
         </div>
     `;
+}).join('')}
 
-    document.body.appendChild(dateDetailsCard);
-
-    // Event listener to close the date details card
-    document.getElementById('closeDateDetailsCard').addEventListener('click', () => {
-        dateDetailsCard.remove();
-    });
-
-    // Event listeners for purchase checkboxes
-    document.querySelectorAll('.purchase-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', async (event) => {
-            const productId = event.target.dataset.id;
-            const purchased = event.target.checked;
-            await updatePurchaseStatus(productId, purchased);
-            loadScheduledDates(); // Refresh the scheduled dates
-            dateDetailsCard.remove(); // Close the details card
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dateDetailsCard);
+        
+        // Event listener to close the date details card
+        document.getElementById('closeDateDetailsCard').addEventListener('click', () => {
+            dateDetailsCard.remove();
+            document.getElementById('dateSelection').classList.remove('hidden');
         });
-    });
-}
-
+        
+        // Event listeners for purchase checkboxes
+        document.querySelectorAll('.purchase-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', async (event) => {
+                const productId = event.target.dataset.id;
+                const purchased = event.target.checked;
+        
+                // Update the purchase status in the database
+                await updatePurchaseStatus(productId, purchased);
+        
+                // Recalculate the totals
+                purchasedTotalPrice = products.reduce((total, product) => {
+                    if (product.id === productId) {
+                        product.purchased = purchased;
+                    }
+                    return product.purchased ? total + product.productPrice * product.productQuantity : total;
+                }, 0);
+                totalPrice = products.reduce((total, product) => total + product.productPrice * product.productQuantity, 0);
+        
+                // Update the display for totals and card background
+                const isAllPurchased = products.every(product => product.purchased);
+                const cardBgColor = isAllPurchased ? 'bg-green-100' : 'bg-white';
+                const totalPriceColor = isAllPurchased ? 'text-green-200' : 'text-gray-500';
+    
+                document.querySelector('.bg-white').classList.remove('bg-white');
+                document.querySelector('.bg-green-100').classList.add(cardBgColor);
+                document.getElementById('totalPrice').classList.replace('text-gray-500', totalPriceColor);
+                document.getElementById('purchasedTotalPrice').classList.replace('text-gray-500', totalPriceColor);
+                document.getElementById('totalPrice').innerText = `Total: ${totalPrice}F`;
+                document.getElementById('purchasedTotalPrice').innerText = `Total des produits achetés: ${purchasedTotalPrice}F`;
+        
+                // Refresh the scheduled dates
+                loadScheduledDates();
+                dateDetailsCard.remove(); // Close the details card
+            });
+        });
+    }
+    
 // Function to update the purchase status in Firestore
 async function updatePurchaseStatus(productId, purchased) {
     const productRef = doc(db, 'products', productId);
@@ -403,4 +369,63 @@ document.getElementById('viewScheduledDatesButton').addEventListener('click', ()
 // Event listener to close the scheduled dates card
 document.getElementById('closeScheduledDatesCard').addEventListener('click', () => {
     document.getElementById('scheduledDatesCard').classList.add('hidden');
+    document.getElementById('dateSelection').style.display = 'block';
+    document.getElementById('productsList').style.display = 'block';
+
 });
+
+
+
+async function deleteProduct(id) {
+    const confirmed = confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');
+    if (confirmed) {
+        await deleteDoc(doc(db, 'products', id));
+        loadUserProducts();
+    }
+}
+
+async function markAsBought(target) {
+    const id = target.getAttribute('data-id');
+    const bought = target.checked;
+    const docRef = doc(db, 'products', id);
+    await updateDoc(docRef, { bought: bought });
+    loadUserProducts(); // Refresh the products list
+}
+
+
+
+// Helper function to validate fields
+function validateFields(fields) {
+    for (const [field, value] of Object.entries(fields)) {
+        if (!value) {
+            return `Le champ "${field}" est requis.`;
+        }
+    }
+    return null;
+}
+
+// Helper function to display messages
+function displayMessage(type, message) {
+    const messageBox = document.getElementById('messageBox');
+    messageBox.className = type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+    messageBox.textContent = message;
+    messageBox.style.display = 'block';
+
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+    }, 3000);
+}
+
+// Firebase authentication state change observer
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is signed in
+        loadUserProducts();
+    } else {
+        // User is signed out
+        document.querySelector('#productsTable tbody').innerHTML = '';
+    }
+});
+
+
+

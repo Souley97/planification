@@ -23,11 +23,18 @@ function initializeUI() {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('authSection').style.display = 'none';
+            document.getElementById('deccon').style.display = 'none';
+            document.getElementById('connec').style.display = 'block';
             document.getElementById('mainSection').style.display = 'block';
+
+            deccon
             loadUserProducts();
         } else {
+            document.getElementById('deccon').style.display = 'block';
             document.getElementById('authSection').style.display = 'block';
             document.getElementById('mainSection').style.display = 'none';
+            document.getElementById('connec').style.display = 'none';
+
         }
     });
 }
