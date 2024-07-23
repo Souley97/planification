@@ -1,14 +1,24 @@
-const signUpButton = document.getElementById('signUpButton');
-const signInButton = document.getElementById('signInButton');
-const signInForm = document.getElementById('signIn');
-const signUpForm = document.getElementById('signup');
-
-signUpButton.addEventListener('click', function(){
-    signInForm.style.display = "none";
-    signUpForm.style.display = "block";
+// Gestion des sections d'authentification
+document.getElementById('signUpButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('signIn').classList.add('hidden');
+    document.getElementById('signup').classList.remove('hidden');
 });
 
-signInButton.addEventListener('click', function(){
-    signInForm.style.display = "block";
-    signUpForm.style.display = "none";
+document.getElementById('signInButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('signup').classList.add('hidden');
+    document.getElementById('signIn').classList.remove('hidden');
+    
 });
+
+// Gestion de la fenêtre modale pour ajouter un produit
+
+
+
+document.getElementById('viewScheduledDatesButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('productsList').classList.add('hidden');
+    document.getElementById('dateSelection').classList.add('hidden');
+});
+
