@@ -107,10 +107,10 @@
              <div id="upcomingDatesList"></div>
   
                <!-- Fenêtre modale de modification de produit -->
-<div id="productModal" class="modal hidden fixed top-0 left-0 w-full h-full flex items-center justify-center">
+<div id="productModal" class="modal hidden  top-0 left-0 w-full h-full flex items-center justify-center">
     <div class="bg-white p-4 rounded-lg relative">
         <span id="productModalClose" class="absolute top-2 right-2 p-2 cursor-pointer">X</span>
-        <h2 id="productModalTitle" class="text-lg font-bold">Modifier le produit</h2>
+        <h2 id="productModalTitle" class="text-lg font-bol  d">Modifier le produit</h2>
         <form id="productModalForm" class="mt-4">
             <input type="hidden" id="productId">
             <label for="productNameEdit" class="block mb-2">Nom du produit:</label>
@@ -137,7 +137,7 @@
     <h1 class="text-3xl text-white mb-4">Planification des Achats</h1>
     <h2 class="text-xl text-white">Sélectionner une Date</h2>
     <div class="flex  justify-center">
-        <input type="date" id="shoppingDate" class="block m-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white text-gray-800">
+        <input type="date" id="shoppingDate" name="shoppingDate" class="block m-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white text-gray-800">
         <button id="addProductButton" class="bg-white text-blue-500 px-7 m-2 rounded-md hover:bg-gray-100 transition">
             <i class="fas fa-plus"></i>
         </button>
