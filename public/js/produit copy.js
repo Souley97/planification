@@ -26,19 +26,44 @@ const addProductButton = document.getElementById('addProductButton');
 const closeModal = document.querySelector('.close-modal');
 
 
-// Handle modal visibility
-function handleModalVisibility() {
-    modal.classList.toggle('hidden');
-    modal.style.display = modal.classList.contains('hidden') ? 'none' : 'flex';
-}
-
-addProductButton.addEventListener('click', handleModalVisibility);
-closeModal.addEventListener('click', handleModalVisibility);
 window.addEventListener('click', (event) => {
     if (event.target === modal) {
-        handleModalVisibility();
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
     }
+    addProductButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('shoppingDate').value = new Date().toISOString().split('T')[0];
+    });
+    
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    });
 });
+
+
+
+
+
+
+// Set the default date to today's date
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('shoppingDate').value = today;
+    loadUserProducts(); // Load products for today by default
+});
+
+// Date change event to load products for selected date
+document.getElementById('shoppingDate').addEventListener('change', loadUserProducts);
 
 // Load products for the logged-in user
 async function loadUserProducts() {
@@ -70,6 +95,7 @@ async function loadUserProducts() {
 
     totalPriceElem.innerHTML = `Somme: ${sommeTotal}F CFA`;
 }
+    
 
 // Add product to table
 function addProductToTable(id, name, price, quantity, date, bought, total) {
@@ -77,8 +103,9 @@ function addProductToTable(id, name, price, quantity, date, bought, total) {
     const row = document.createElement('tr');
     row.className="mb-4 p-20 bg-gray-100 rounded-lg shadow-sm cursor-pointer ";
     
+
     row.innerHTML = `
-        <td class="flex items-center my-4 rounded-lg shadow-sm cursor-pointer p-4 bg-white">
+        <td class="flex items-center my-4 rounded-lg shadow-sm cursor-pointer   p-4 bg-white">
             <img class="w-16 h-16 object-cover rounded" src="https://dummyimage.com/100x100/F3F4F7/000000.jpg" alt="Product Image">
             <div class="ml-3 flex-1">
                 <h3 class="text-gray-900 font-semibold">${name}</h3>
@@ -99,49 +126,27 @@ function addProductToTable(id, name, price, quantity, date, bought, total) {
 
     tbody.appendChild(row);
 
-
-    row.querySelector('.delete-button').addEventListener('click', async (event) => {
+    // Ajout des événements pour les boutons et les cases à cocher
+    row.querySelector('.purchase-checkbox').addEventListener('change', async (event) => {
         const productId = event.target.dataset.id;
-        await deleteProduct(productId);
-        loadUserProducts(); // Recharge les produits après la suppression
+        const purchased = event.target.checked;
+        await updatePurchaseStatus(productId, purchased);
+        loadScheduledDates(); // Rafraîchir les dates planifiées
     });
-    
+
+ 
 }
 
-// Check if there are issues with data fetching
-loadUserProducts().then(() => {
-    console.log('Products loaded successfully');
-}).catch(error => {
-    console.error('Error loading products:', error);
-});
-
-
-
-
-// Set the default date to today's date
-document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('shoppingDate').value = today;
-    loadUserProducts(); // Load products for today by default
-});
-
 // Add product form submission
-// Écouter l'événement de soumission du formulaire
 document.getElementById('productForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    // Récupérer les valeurs des champs
     const productName = document.getElementById('productName').value.trim();
     const productPrice = document.getElementById('productPrice').value.trim();
     const productQuantity = document.getElementById('productQuantity').value.trim();
-    const shoppingDate = document.getElementById('shoppingDate').value; // Récupérer la date choisie
+    const shoppingDate = document.getElementById('shoppingDate').value;
     const status = document.getElementById('status').value; // Acheter ou pas
     const user = auth.currentUser;
 
-    // Afficher la date pour le débogage
-    console.log(`Date sélectionnée: ${shoppingDate}`);
-
-    // Valider les champs
     const fields = {
         "Nom du produit": productName,
         "Prix du produit": productPrice,
@@ -154,21 +159,20 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!user || !shoppingDate) { // Vérifier que l'utilisateur et la date sont présents
+    if (!user || !shoppingDate) {
         displayMessage('error', 'Vous devez être connecté et avoir sélectionné une date.');
         return;
     }
 
-    // Déterminer si le produit est marqué comme acheté ou non
+    // Détermine si le produit est marqué comme acheté ou non
     const boughtStatus = status === 'acheter';
 
-    // Sauvegarder le produit avec la date
     await setDoc(doc(db, 'products', `${user.uid}-${shoppingDate}-${productName}`), {
         userId: user.uid,
         productName,
         productPrice,
         productQuantity,
-        shoppingDate, // Utiliser la date récupérée
+        shoppingDate,
         bought: boughtStatus
     });
 
@@ -179,8 +183,6 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     modal.classList.add('hidden');
     modal.style.display = 'none';
 });
-
-// Autres fonctions comme loadUserProducts(), validateFields(), displayMessage(), etc.
 
 
 
@@ -361,20 +363,12 @@ document.getElementById('closeScheduledDatesCard').addEventListener('click', () 
 
 
 
-async function deleteProduct(productId) {
+async function deleteProduct(id) {
     const confirmed = confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');
     if (confirmed) {
-
-    try {
-        const productRef = doc(db, 'products', productId);
-        await deleteDoc(productRef);
+        await deleteDoc(doc(db, 'products', id));
         loadUserProducts();
-
-        console.log('Produit supprimé avec succès');
-    } catch (error) {
-        console.error('Erreur lors de la suppression du produit : ', error);
     }
-}
 }
 
 async function markAsBought(target) {
