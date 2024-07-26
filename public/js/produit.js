@@ -34,7 +34,7 @@ window.addEventListener('click', (event) => {
     addProductButton.addEventListener('click', () => {
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        document.getElementById('shoppingDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('shoppingDate').value ;
     });
     
     closeModal.addEventListener('click', () => {
@@ -128,9 +128,8 @@ function addProductToTable(id, name, price, quantity, date, bought, total) {
 
     // Ajout des événements pour les boutons et les cases à cocher
     row.querySelector('.delete-button').addEventListener('click', async (event) => {
-        const productId = event.target.dataset.id;
+        const productId = event.currentTarget.dataset.id; // Ensure correct data attribute usage
         await deleteProduct(productId);
-        loadUserProducts(); // Recharge les produits après la suppression
     });
     
 
@@ -346,6 +345,8 @@ async function updatePurchaseStatus(productId, purchased) {
 document.getElementById('viewScheduledDatesButton').addEventListener('click', () => {
     loadScheduledDates();
     document.getElementById('scheduledDatesCard').classList.remove('hidden');
+    document.getElementById('productsList').style.display = 'none';
+
 });
 
 // Event listener to close the scheduled dates card
@@ -356,8 +357,6 @@ document.getElementById('closeScheduledDatesCard').addEventListener('click', () 
 
 });
 
-
-
 async function deleteProduct(id) {
     const confirmed = confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');
     if (confirmed) {
@@ -365,6 +364,7 @@ async function deleteProduct(id) {
         loadUserProducts();
     }
 }
+
 
 async function markAsBought(target) {
     const id = target.getAttribute('data-id');
