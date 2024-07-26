@@ -365,17 +365,14 @@ async function deleteProduct(productId) {
     const confirmed = confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');
     if (confirmed) {
 
-    try {
+  
         const productRef = doc(db, 'products', productId);
         await deleteDoc(productRef);
         loadUserProducts();
 
-        console.log('Produit supprimé avec succès');
-    } catch (error) {
-        console.error('Erreur lors de la suppression du produit : ', error);
-    }
+    } 
 }
-}
+
 
 async function markAsBought(target) {
     const id = target.getAttribute('data-id');
